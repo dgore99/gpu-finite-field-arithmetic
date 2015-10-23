@@ -1,1 +1,1 @@
-# gpu-polynomials
+# gpu-finite-field-arithmetic
