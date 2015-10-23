@@ -93,6 +93,40 @@ static polynomial& polynomial::operator-(const polynomial& p, const polynomial& 
 	return p + polynomial(r_co, q_deg, charecteristic);
 }
 
+static polynomial& polynomial::operator-(const polynomial& p, const polynomial& q)
+{
+	unsigned		charecteristic(p.charecteristic);
+	const unsigned	*p_co(p.coeffs), *q_co(q.coeffs), *b_co;
+	int				p_deg(p.degree), q_deg(q.degree);
+	
+	// Find min and max
+	int			diff		= p_deg - q_deg;
+	int			sum			= p_deg + q_deg;
+	unsigned	abs_diff	= (unsigned) sqrt(diff*diff);
+	unsigned	max			= (sum + abs_diff)/2, maxp1 = max + 1;
+	unsigned	min			= (sum - abs_diff)/2, minp1 = min + 1;
+	
+	unsigned	r_co[max + 1];
+	
+	// Sum shared
+	for ( unsigned i = 0 ; i < minp1 ; i++ )
+		r_co[i] = (p_co[i] - q_co[i]) % charecteristic;
+	
+	b_co	= ( (p_deg == max) ? p_co : q_co );
+	
+	// Copy big
+	for ( unsigned i = minp1 ; i < maxp1 ; i++ )
+		r_co[i] = b_co[i];
+		
+	unsigned	r_deg(max);
+	
+	// Find the degree of the new polynomial
+	while ( r_co[r_deg] == 0 && r_deg > 0 )
+		r_deg--;
+	
+	return polynomial(r_co, r_deg, charecteristic);
+}
+
 static polynomial& polynomial::operator*(const polynomial& p, const polynomial& q)
 {
 	const unsigned	*p_co(p.coeffs),	*q_co(q.coeffs);
