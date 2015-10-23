@@ -16,7 +16,7 @@ class polynomial
 		static polynomial& operator+(const polynomial& p, const polynomial& q);
 		static polynomial& operator-(const polynomial& p, const polynomial& q);
 		static polynomial& operator*(const polynomial& p, const polynomial& q);
-		static polynomial& operator*(int constant, const polynomial& p);
+		static polynomial& operator*(unsigned constant, const polynomial& p);
 		
 	private:
 		unsigned* 	coeffs;

@@ -79,52 +79,15 @@ static polynomial& polynomial::operator+(const polynomial& p, const polynomial& 
 	return polynomial(r_co, r_deg, charecteristic);
 }
 
+// Hacky way, not efficient but works with mimimal control statements
 static polynomial& polynomial::operator-(const polynomial& p, const polynomial& q)
 {
 	unsigned		charecteristic(p.charecteristic);
 	const unsigned	*q_co(q.coeffs);
 	int				q_deg(q.degree), q_deg_p1 = q_deg+1;
 	unsigned		r_co[q_deg+1];
-	
-	// Flip everythin in q
-	for ( i = 0 ; i < q_deg_p1 ; i++ )
-		r_co[i] = (-1 * q_co[i]) % charecteristic;
 		
-	return p + polynomial(r_co, q_deg, charecteristic);
-}
-
-static polynomial& polynomial::operator-(const polynomial& p, const polynomial& q)
-{
-	unsigned		charecteristic(p.charecteristic);
-	const unsigned	*p_co(p.coeffs), *q_co(q.coeffs), *b_co;
-	int				p_deg(p.degree), q_deg(q.degree);
-	
-	// Find min and max
-	int			diff		= p_deg - q_deg;
-	int			sum			= p_deg + q_deg;
-	unsigned	abs_diff	= (unsigned) sqrt(diff*diff);
-	unsigned	max			= (sum + abs_diff)/2, maxp1 = max + 1;
-	unsigned	min			= (sum - abs_diff)/2, minp1 = min + 1;
-	
-	unsigned	r_co[max + 1];
-	
-	// Sum shared
-	for ( unsigned i = 0 ; i < minp1 ; i++ )
-		r_co[i] = (p_co[i] - q_co[i]) % charecteristic;
-	
-	b_co	= ( (p_deg == max) ? p_co : q_co );
-	
-	// Copy big
-	for ( unsigned i = minp1 ; i < maxp1 ; i++ )
-		r_co[i] = b_co[i];
-		
-	unsigned	r_deg(max);
-	
-	// Find the degree of the new polynomial
-	while ( r_co[r_deg] == 0 && r_deg > 0 )
-		r_deg--;
-	
-	return polynomial(r_co, r_deg, charecteristic);
+	return p + (charecteristic - 1) * q ;
 }
 
 static polynomial& polynomial::operator*(const polynomial& p, const polynomial& q)
@@ -145,14 +108,14 @@ static polynomial& polynomial::operator*(const polynomial& p, const polynomial& 
 	return polynomial(r_co, r_deg, charecteristic);
 }
 
-static polynomial& polynomial::operator*(int n, const polynomial& p)
+static polynomial& polynomial::operator*(unsigned n, const polynomial& p)
 {
 	unsigned		charecteristic(p.charecteristic);
 	const unsigned	*p_co(p.coeffs);
 	int				p_deg(p.degree), p_deg_p1 = p_deg+1;
 	unsigned		r_co[q_deg+1];
 	
-	// Multiply everythin in p
+	// Multiply everything in p
 	for ( i = 0 ; i < p_deg_p1 ; i++ )
 		r_co[i] = (n*p_co[i])%charecteristic;
 		
