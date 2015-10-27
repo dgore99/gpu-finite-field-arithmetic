@@ -1,6 +1,8 @@
+#include <memory>
+
 #include "polynomial.h"
 
-namespace gpu_poly
+namespace gpu_finite_field
 {
 
 class modular_polynomial
@@ -20,8 +22,10 @@ class modular_polynomial
 		static modular_polynomial& inverse(const modular_polynomial& p);
 		
 	private:
-		polynomial	poly;
-		polynomial	modulus;
+		modular_polynomial(std::shared_ptr<polynomial> poly, std::shared_ptr<polynomial> modulus);
+		
+		std::shared_ptr<polynomial>	poly;
+		std::shared_ptr<polynomial>	modulus;
 };
 
 }

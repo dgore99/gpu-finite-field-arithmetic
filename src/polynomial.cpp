@@ -1,23 +1,28 @@
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include "polynomial.h"
 
 using std::copy_n;
+using std::shared_ptr;
 
-namespace gpu_poly
+namespace gpu_finite_field
 {
 
-polynomial::polynomial(const unsigned* coeffs, unsigned degree, unsigned charecteristic) :
-	coeffs(new unsigned[degree+1]), degree(degree), charecteristic(charecteristic)
+polynomial::polynomial(const unsigned* coeffs_i, unsigned degree_i, unsigned charecteristic_i) :
+	coeffs(new unsigned[degree_i+1]), degree(degree_i), charecteristic(charecteristic_i)
 {
-	copy_n(coeffs, degree + 1, this -> coeffs);
+	unsigned* arr((this -> coeffs).get());
+	copy_n(coeffs_i, degree + 1, arr);
 }
 
-polynomial::polynomial(polynomial&& move_me) : coeffs(std::move(move_me.coeffs)),
+polynomial::polynomial(polynomial&& move_me) : coeffs(move_me.coeffs),
 	degree(move_me.degree), charecteristic(move_me.charecteristic)
 {
 }
+
+polynomial(shared_ptr<unsigned> coeffs, unsigned degree, unsigned charecteristic);
 
 polynomial::~polynomial()
 {
@@ -27,7 +32,8 @@ polynomial::~polynomial()
 unsigned* polynomial::get_coeffs()
 {
 	unsigned* copy_coeffs(new unsigned[degree + 1]);
-	copy_n(coeffs, degree + 1, copy_coeffs);
+	unsigned* arr(coeffs.get())
+	copy_n(arr, degree + 1, copy_coeffs);
 }
 
 unsigned polynomial::get_charecteristic()
@@ -42,7 +48,7 @@ unsigned polynomial::get_degree()
 
 polynomial& polynomial::copy()
 {
-	return polynomial(coeffs, degree, charecteristic);
+	return polynomial(coeffs.get(), degree, charecteristic);
 }
 
 static polynomial& polynomial::operator+(const polynomial& p, const polynomial& q)
@@ -58,7 +64,7 @@ static polynomial& polynomial::operator+(const polynomial& p, const polynomial& 
 	unsigned	max			= (sum + abs_diff)/2, maxp1 = max + 1;
 	unsigned	min			= (sum - abs_diff)/2, minp1 = min + 1;
 	
-	unsigned	r_co[max + 1];
+	unsigned*	r_co(new unsigned[max + 1]);
 	
 	// Sum shared
 	for ( unsigned i = 0 ; i < minp1 ; i++ )
@@ -76,7 +82,7 @@ static polynomial& polynomial::operator+(const polynomial& p, const polynomial& 
 	while ( r_co[r_deg] == 0 && r_deg > 0 )
 		r_deg--;
 	
-	return polynomial(r_co, r_deg, charecteristic);
+	return polynomial(shared_ptr<unsigned>(r_co), r_deg, charecteristic);
 }
 
 // Hacky way, not efficient but works with mimimal control statements
@@ -113,13 +119,20 @@ static polynomial& polynomial::operator*(unsigned n, const polynomial& p)
 	unsigned		charecteristic(p.charecteristic);
 	const unsigned	*p_co(p.coeffs);
 	int				p_deg(p.degree), p_deg_p1 = p_deg+1;
-	unsigned		r_co[q_deg+1];
+	unsigned*		r_co(new unsigned[q_deg+1]);
 	
 	// Multiply everything in p
 	for ( i = 0 ; i < p_deg_p1 ; i++ )
 		r_co[i] = (n*p_co[i])%charecteristic;
 		
-	return p + polynomial(r_co, q_deg, charecteristic);
+	// Reduce
+	unsigned	r_deg(q_deg);
+	
+	// Find the degree of the new polynomial
+	while ( r_co[r_deg] == 0 && r_deg > 0 )
+		r_deg--;
+		
+	return p + polynomial(shared_ptr<unsigned>(r_co), r_deg, charecteristic);
 }
 
 }

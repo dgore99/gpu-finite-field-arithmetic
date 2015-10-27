@@ -1,4 +1,6 @@
-namespace gpu_poly
+#include<memory>
+
+namespace gpu_finite_field
 {
 
 class polynomial
@@ -19,9 +21,11 @@ class polynomial
 		static polynomial& operator*(unsigned constant, const polynomial& p);
 		
 	private:
-		unsigned* 	coeffs;
-		unsigned 	degree;
-		unsigned 	charecteristic;
+		polynomial(std::shared_ptr<unsigned> coeffs, unsigned degree, unsigned charecteristic);
+	
+		std::shared_ptr<unsigned> 	coeffs;
+		unsigned 					degree;
+		unsigned 					charecteristic;
 }
 
 };

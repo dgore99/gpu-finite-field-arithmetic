@@ -10,7 +10,7 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/XmlOutputter.h>
 
-#include "polynomial.h"
+#include "../include/polynomial.h"
 
 class polynomial_test : public CppUnit::TestFixture
 {
