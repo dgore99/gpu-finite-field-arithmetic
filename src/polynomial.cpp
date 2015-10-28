@@ -13,7 +13,7 @@ namespace gpu_finite_field
 polynomial::polynomial(const unsigned* coeffs_i, unsigned degree_i, unsigned charecteristic_i) :
 	coeffs(new unsigned[degree_i+1]), degree(degree_i), charecteristic(charecteristic_i)
 {
-	unsigned* arr((this -> coeffs).get());
+	unsigned* arr((coeffs).get());
 	copy_n(coeffs_i, degree + 1, arr);
 }
 
@@ -89,8 +89,6 @@ static polynomial& polynomial::operator+(const polynomial& p, const polynomial& 
 static polynomial& polynomial::operator-(const polynomial& p, const polynomial& q)
 {
 	unsigned		charecteristic(p.charecteristic);
-	const unsigned	*q_co(q.coeffs);
-	int				q_deg(q.degree), q_deg_p1 = q_deg+1;
 	unsigned		r_co[q_deg+1];
 		
 	return p + (charecteristic - 1) * q ;
