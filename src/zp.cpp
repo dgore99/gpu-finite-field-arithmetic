@@ -27,11 +27,6 @@ unsigned mod_mul(unsigned n, unsigned m, unsigned p)
 	return (n * m) % p;
 }
 
-unsigned mod_div(unsigned n, unsigned m, unsigned p)
-{
-	return (n * mod_inv(n, p)) % p;
-}
-
 unsigned mod_exp(unsigned n, unsigned k, unsigned p)
 {
 	// Invoke Fermat's Little Theorem
