@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <iostream>
 
-#include "polynomial.h"
+#include "../include/polynomial.h"
+#include "../include/zp.h"
 
 using std::cout;
 using std::endl;
@@ -13,19 +14,32 @@ typedef std::unique_ptr<unsigned> c_ptr;
 namespace gpu_finite_field
 {
 
-polynomial& poly_zp(int* coeffs, unsigned degree, unsigned p)
+polynomial& poly_zp(const int* coeffs, unsigned degree, unsigned p)
 {
-	unsigned* arr = new unsigned[degree + 1];
+	unsigned	d;
 
-	for (unsigned j = 0 ; j <= degree ; j++)
-	{
-		arr[j] = coeffs[j] % p;
+	for (d = degree ; d >= 0 && coeffs[d] == 0 ; d--);
 
-		if (arr[j] < 0)
-			arr[j] += p;
-	}
+	unsigned*	arr(new unsigned[d + 1]);
 
-	return make_pair(c_ptr(arr), degree);
+	for (unsigned j = d ; j >= 0 ; j--)
+		arr[j] = mod(coeffs[j], p);
+
+	return make_pair(c_ptr(arr), d);
+}
+
+polynomial& poly_zp(const unsigned* coeffs, unsigned degree, unsigned p)
+{
+	unsigned	d;
+
+	for (d = degree ; d >= 0 && coeffs[d] == 0 ; d--);
+
+	unsigned*	arr(new unsigned[d + 1]);
+
+	for (unsigned j = d ; j >= 0 ; j--)
+		arr[j] = mod(coeffs[j], p);
+
+	return make_pair(c_ptr(arr), d);
 }
 
 polynomial& poly_add(const polynomial& f, const polynomial& g, unsigned p)
@@ -43,7 +57,7 @@ polynomial& poly_add(const polynomial& f, const polynomial& g, unsigned p)
 		b = &g;
 	}
 
-	unsigned* q = new unsigned[a ->second + 1];
+	c_ptr q(new unsigned[a ->second + 1]);
 
 	for (int j = 0 ; j <= b ->second ; j++)
 		q[j] = (a ->first[j] + b ->first[j]) % p;
@@ -54,7 +68,7 @@ polynomial& poly_add(const polynomial& f, const polynomial& g, unsigned p)
 	a = nullptr;
 	b = nullptr;
 
-	return make_pair(c_ptr(arr), a ->second);
+	return poly_zp(q.get(), d);
 }
 
 polynomial& poly_sub(const polynomial& f, const polynomial& g, unsigned p)
@@ -78,22 +92,25 @@ polynomial& poly_mul(const polynomial& f, const polynomial& g, unsigned p)
 
 polynomial& poly_const_mul(int k, const polynomial& f, unsigned p)
 {
-	// Force the multiple to be non-negative.
-	unsigned mult = (k < 0 ? ((p - 1) * (-1 * k)) % p : k % p);
-
-	if (mult == 0)
-	{
-		unsigned* o = new unsigned[1];
-		o[0] = 0;
-		return make_pair(c_ptr(o), 0);
-	}
+	// Force the multiple to be in Z_p.
+	unsigned mult = mod(k, p);
 
 	unsigned* coeffs(new unsigned[f.second]);
 
+	// Multiply the polynomials
 	for (int j = 0 ; j <= f.second  ; j++)
 		coeffs[j] = (mult * f.first[j]) % p;
 
 	return make_pair(c_ptr(coeffs, f.second));
+}
+
+bool is_zero(const polynomial& f)
+{
+	for (unsigned j = 0 ; j < f.second ; j++)
+		if (f.first[j] != 0)
+			return false;
+
+	return true;
 }
 
 void print_poly_form(const polynomial& f)

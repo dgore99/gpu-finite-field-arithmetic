@@ -1,42 +1,45 @@
+/// @file
+/// @brief A file containing functions for operations in \f$Z_p\f$.
 #ifndef ZP_H
 #define ZP_H
 
+/// Contains finite field operations.
 namespace gpu_finite_field
 {
 
-/// Computes n modulo p.
+/// Computes \f$ n \mod{p}\f$.
 /// @param n The input integer.
 /// @param p A prime number (note: we do not check for primality).
-/// @return n % p between 0 and p-1.
+/// @return \f$ n \mod{p}\f$.
 unsigned mod(int n, unsigned p);
-/// Computes n + m modulo p.
+/// Computes \f$ n + m \mod{p}\f$.
 /// @param n The first input integer.
 /// @param m The second input integer.
 /// @param p A prime number (note: we do not check for primality.
-/// @param (n + m) % p.
+/// @param \f$ n + m \mod{p}\f$.
 unsigned mod_add(unsigned n, unsigned m, unsigned p);
-/// Computes n - m modulo p.
+/// Computes \f$ n - m \mod{p}\f$.
 /// @param n The first input integer.
 /// @param m The second input integer.
 /// @param p A prime number (note: we do not check for primality.
-/// @param (n - m) % p.
+/// @param \f$ n - m \mod{p}\f$.
 unsigned mod_sub(unsigned n, unsigned m, unsigned p);
-/// Computes n * m modulo p.
+/// Computes \f$ n \cdot m\mod{p}\f$.
 /// @param n The first input integer.
 /// @param m The second input integer.
 /// @param p A prime number (note: we do not check for primality.
-/// @param (n * m) % p.
+/// @param \f$ n \cdot m\mod{p}\f$.
 unsigned mod_mul(unsigned n, unsigned m, unsigned p);
-/// Computes n^k modulo p.
+/// Computes \f$ n^k \mod{p}\f$.
 /// @param n The base.
 /// @param k The power.
 /// @param p A prime number (note: we do not check for primality.
-/// @param (n^k) % p.
+/// @param \f$ n^k \mod{p}\f$.
 unsigned mod_exp(unsigned n, unsigned k, unsigned p);
-/// Computes n^(-1) modulo p.
+/// Computes \f$ n^{-1} \mod{p}\f$.
 /// @param n The input integer.
 /// @param p A prime number (note: we do not check for primality.
-/// @param (n^(-1)) % p.
+/// @param \f$ n^{-1} \mod{p}\f$.
 unsigned mod_inv(unsigned n, unsigned p);
 
 }
