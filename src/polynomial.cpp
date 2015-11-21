@@ -79,7 +79,7 @@ polynomial& poly_mul(const polynomial& f, const polynomial& g, unsigned p)
 polynomial& poly_const_mul(int k, const polynomial& f, unsigned p)
 {
 	// Force the multiple to be non-negative.
-	unsigned mult = (k < 0 ? ((p - 1) * k) % p : k % p);
+	unsigned mult = (k < 0 ? ((p - 1) * (-1 * k)) % p : k % p);
 
 	if (mult == 0)
 	{

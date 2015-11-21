@@ -7,9 +7,10 @@ unsigned mod_exp_helper(unsigned n, unsigned k, unsigned p);
 
 unsigned mod(int n, unsigned p)
 {
-	int n_p(n % p);
-
-	return (unsigned)(n_p >= 0 ? n_p : n_p + p);
+	if (n < 0)
+		return ((-1 * n) * (p - 1)) % p;
+	else
+		return n % p;
 }
 
 unsigned mod_add(unsigned n, unsigned m, unsigned p)
