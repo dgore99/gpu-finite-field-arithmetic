@@ -1,136 +1,119 @@
 #include <algorithm>
-#include <cmath>
-#include <memory>
+#include <iostream>
 
 #include "polynomial.h"
 
-using std::copy_n;
-using std::shared_ptr;
+using std::cout;
+using std::endl;
+using std::fill_n;
+using std::make_pair;
+
+typedef std::unique_ptr<unsigned> c_ptr;
 
 namespace gpu_finite_field
 {
 
-polynomial::polynomial(const unsigned* coeffs_i, unsigned degree_i, unsigned charecteristic_i) :
-	coeffs(new unsigned[degree_i+1]), degree(degree_i), charecteristic(charecteristic_i)
+polynomial& poly_zp(int* coeffs, unsigned degree, unsigned p)
 {
-	unsigned* arr((coeffs).get());
-	copy_n(coeffs_i, degree + 1, arr);
+	unsigned* arr = new unsigned[degree + 1];
+
+	for (unsigned j = 0 ; j <= degree ; j++)
+	{
+		arr[j] = coeffs[j] % p;
+
+		if (arr[j] < 0)
+			arr[j] += p;
+	}
+
+	return make_pair(c_ptr(arr), degree);
 }
 
-polynomial::polynomial(polynomial&& move_me) : coeffs(move_me.coeffs),
-	degree(move_me.degree), charecteristic(move_me.charecteristic)
+polynomial& poly_add(const polynomial& f, const polynomial& g, unsigned p)
 {
+	polynomial* a, b;
+
+	if (f.second <= g.second)
+	{
+		a = &g;
+		b = &f;
+	}
+	else
+	{
+		a = &f;
+		b = &g;
+	}
+
+	unsigned* q = new unsigned[a ->second + 1];
+
+	for (int j = 0 ; j <= b ->second ; j++)
+		q[j] = (a ->first[j] + b ->first[j]) % p;
+
+	for (int j = b ->second + 1 ; j <= a ->second ; j++)
+		q[j] = a ->first[j];
+
+	a = nullptr;
+	b = nullptr;
+
+	return make_pair(c_ptr(arr), a ->second);
 }
 
-polynomial(shared_ptr<unsigned> coeffs, unsigned degree, unsigned charecteristic);
-
-polynomial::~polynomial()
+polynomial& poly_sub(const polynomial& f, const polynomial& g, unsigned p)
 {
-	delete coeffs;
+	return poly_add(f, poly_const_mul(p - 1, g));
 }
 
-unsigned* polynomial::get_coeffs()
+polynomial& poly_mul(const polynomial& f, const polynomial& g, unsigned p)
 {
-	unsigned* copy_coeffs(new unsigned[degree + 1]);
-	unsigned* arr(coeffs.get())
-	copy_n(arr, degree + 1, copy_coeffs);
+	unsigned	deg(f.second * g.second);
+	unsigned*	coeffs(new unsigned[deg + 1]);
+
+	fill_n(coeffs, deg + 1, 0);
+
+	for (unsigned i = 0 ; i <= f.second ; i++)
+		for (unsigned j = 0 ; j <= g.second ; j++)
+			coeffs[i + j] += (f.first[i] * g.second[j]) % p;
+
+	return make_pair(c_ptr(coeffs), deg);
 }
 
-unsigned polynomial::get_charecteristic()
+polynomial& poly_const_mul(int k, const polynomial& f, unsigned p)
 {
-	return charecteristic;
+	// Force the multiple to be non-negative.
+	unsigned mult = (k < 0 ? ((p - 1) * k) % p : k % p);
+
+	if (mult == 0)
+	{
+		unsigned* o = new unsigned[1];
+		o[0] = 0;
+		return make_pair(c_ptr(o), 0);
+	}
+
+	unsigned* coeffs(new unsigned[f.second]);
+
+	for (int j = 0 ; j <= f.second  ; j++)
+		coeffs[j] = (mult * f.first[j]) % p;
+
+	return make_pair(c_ptr(coeffs, f.second));
 }
 
-unsigned polynomial::get_degree()
+void print_poly_form(const polynomial& f)
 {
-	return degree;
+	cout << f.first[0];
+
+	for (int j = 1 ; j <= f.second ; j++)
+		cout << "+" << f.first[j] << "x^" << j;
+
+	cout << endl;
 }
 
-polynomial& polynomial::copy()
+void print_vect_form(const polynomial& f)
 {
-	return polynomial(coeffs.get(), degree, charecteristic);
-}
+	cout << "[" << f.first[0];
 
-static polynomial& polynomial::operator+(const polynomial& p, const polynomial& q)
-{
-	unsigned		charecteristic(p.charecteristic);
-	const unsigned	*p_co(p.coeffs), *q_co(q.coeffs), *b_co;
-	int				p_deg(p.degree), q_deg(q.degree);
-	
-	// Find min and max
-	int			diff		= p_deg - q_deg;
-	int			sum			= p_deg + q_deg;
-	unsigned	abs_diff	= (unsigned) sqrt(diff*diff);
-	unsigned	max			= (sum + abs_diff)/2, maxp1 = max + 1;
-	unsigned	min			= (sum - abs_diff)/2, minp1 = min + 1;
-	
-	unsigned*	r_co(new unsigned[max + 1]);
-	
-	// Sum shared
-	for ( unsigned i = 0 ; i < minp1 ; i++ )
-		r_co[i] = (p_co[i] + q_co[i]) % charecteristic;
-	
-	b_co	= ( (p_deg == max) ? p_co : q_co );
-	
-	// Copy big
-	for ( unsigned i = minp1 ; i < maxp1 ; i++ )
-		r_co[i] = b_co[i];
-		
-	unsigned	r_deg(max);
-	
-	// Find the degree of the new polynomial
-	while ( r_co[r_deg] == 0 && r_deg > 0 )
-		r_deg--;
-	
-	return polynomial(shared_ptr<unsigned>(r_co), r_deg, charecteristic);
-}
+	for (int j = 1 ; j <= f.second ; j++)
+		cout << "," << f.first[j];
 
-// Hacky way, not efficient but works with mimimal control statements
-static polynomial& polynomial::operator-(const polynomial& p, const polynomial& q)
-{
-	unsigned		charecteristic(p.charecteristic);
-	unsigned		r_co[q_deg+1];
-		
-	return p + (charecteristic - 1) * q ;
-}
-
-static polynomial& polynomial::operator*(const polynomial& p, const polynomial& q)
-{
-	const unsigned	*p_co(p.coeffs),	*q_co(q.coeffs);
-	unsigned		p_deg(p.degree),	q_deg(q.degree);
-	unsigned		p_deg_p1(p_deg+1),	q_deg_p1(q_deg+1);
-	unsigned		r_deg(p_deg+q_deg),	r_deg_p1(r_deg+1);
-	unsigned		charecteristic(p.charecteristic);
-	
-	unsigned		r_co[r_deg_p1];
-	
-	// Compute the new vector of coefficients
-	for ( i = 0 ; i < p_deg_p1 ; i++)
-		for ( j = 0 ; j < q_deg_p1 ; j++)
-			r_co[i+j] = p_co[i] + q_co[j];
-	
-	return polynomial(r_co, r_deg, charecteristic);
-}
-
-static polynomial& polynomial::operator*(unsigned n, const polynomial& p)
-{
-	unsigned		charecteristic(p.charecteristic);
-	const unsigned	*p_co(p.coeffs);
-	int				p_deg(p.degree), p_deg_p1 = p_deg+1;
-	unsigned*		r_co(new unsigned[q_deg+1]);
-	
-	// Multiply everything in p
-	for ( i = 0 ; i < p_deg_p1 ; i++ )
-		r_co[i] = (n*p_co[i])%charecteristic;
-		
-	// Reduce
-	unsigned	r_deg(q_deg);
-	
-	// Find the degree of the new polynomial
-	while ( r_co[r_deg] == 0 && r_deg > 0 )
-		r_deg--;
-		
-	return p + polynomial(shared_ptr<unsigned>(r_co), r_deg, charecteristic);
+	cout << "]" << endl;
 }
 
 }
