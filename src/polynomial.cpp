@@ -9,8 +9,6 @@ using std::endl;
 using std::fill_n;
 using std::make_pair;
 
-typedef std::unique_ptr<unsigned> c_ptr;
-
 namespace finite_field
 {
 
@@ -25,7 +23,9 @@ polynomial& poly_zp(const int* coeffs, unsigned len, unsigned p)
 	for (unsigned j = d ; j >= 0 ; j--)
 		arr[j] = mod(coeffs[j], p);
 
-	return make_pair(c_ptr(arr), d);
+	c_ptr q(arr);
+	//return make_pair<c_ptr, unsigned>(c_ptr(arr), unsigned(d));
+	return make_pair(q, d);
 }
 
 polynomial& poly_zp(const unsigned* coeffs, unsigned degree, unsigned p)
@@ -39,7 +39,8 @@ polynomial& poly_zp(const unsigned* coeffs, unsigned degree, unsigned p)
 	for (unsigned j = d ; j >= 0 ; j--)
 		arr[j] = mod(coeffs[j], p);
 
-	return make_pair(c_ptr(arr), d);
+		c_ptr q(arr);
+		return make_pair(q, d);
 }
 
 polynomial& poly_add(const polynomial& f, const polynomial& g, unsigned p)
@@ -101,8 +102,8 @@ polynomial& poly_const_mul(int k, const polynomial& f, unsigned p)
 	if (mult == 0)
 	{
 		unsigned	d(0);
-		c_ptr		q(new unsigned);
-		*q = 0;
+		c_ptr		q(new unsigned[1]);
+		q[0] = 0;
 		return make_pair(q, d);
 	}
 

@@ -13,6 +13,7 @@
 #include <cppunit/XmlOutputter.h>
 
 #include "zp_test.cpp"
+#include "polynomial_test.cpp"
 
 using namespace std;
 using namespace CppUnit;

@@ -41,28 +41,37 @@ class polynomial_test : public CppUnit::TestFixture
 	protected:
 		void test_poly_zp_poly(void)
 		{
-			polynomial o(poly_zp({1,2,3,4,0,0,0}, 7));
-			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong degree", 3, o.second);
+			int x[] = {1,2,3,4,0,0,0};
+			polynomial o;
+			o.swap(poly_zp(x, 7, 11));
+			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong degree", (unsigned)3, o.second);
+
+			unsigned* p = o.first.get();
 
 			for (int i = 0 ; i < o.second ; i++)
-				CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong coeff", i + 1, o.first[i]);
+				CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong coeff", (unsigned)(i + 1), p[i]);
 		}
 		void test_poly_zp_const(void)
 		{
-			polynomial o(poly_zp({1,0,0,0,0}, 5));
-			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong degree", 0, o.second);
-			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong coeff", 1, o.first[1]);
+			int x[] = {1,0,0,0,0};
+			polynomial o;
+			o.swap(poly_zp(x, 5, 11));
+
+			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong degree", (unsigned)0, o.second);
+			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong coeff", (unsigned)1, o.first.get()[0]);
 		}
 		void test_poly_zp_zero(void)
 		{
-			polynomial o(poly_zp({0,0,0,0,0}, 5));
-			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong degree", 0, o.second);
-			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong coeff", 0, o.first[1]);
+			int x[] = {0,0,0,0,0};
+			polynomial o;
+			o.swap(poly_zp(x, 5, 11));
+			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong degree", (unsigned)0, o.second);
+			CPPUNIT_ASSERT_EQUAL_MESSAGE("Wrong coeff", (unsigned)0, o.first.get()[0]);
 		}
 		void test_poly_add(void)
 		{
-			
+
 		}
 
 	private:
-}
+};

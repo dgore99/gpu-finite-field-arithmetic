@@ -10,8 +10,10 @@
 namespace finite_field
 {
 
+/// A shared pointer to a coefficient vector
+typedef std::shared_ptr<unsigned> c_ptr;
 /// A polynomial is a list of coefficients and a degree.
-typedef std::pair<std::unique_ptr<unsigned>, unsigned> polynomial;
+typedef std::pair<c_ptr, unsigned> polynomial;
 
 /// Creates a polynomial in \f$Z_p[x]\f$.
 /// @param coeffs The coefficient vector of a monic polynomial ordered
