@@ -57,12 +57,13 @@ polynomial& poly_add(const polynomial& f, const polynomial& g, unsigned p)
 		b = &g;
 	}
 
-	c_ptr q(new unsigned[a ->second + 1]);
+	unsigned	d(a ->second);
+	c_ptr 		q(new unsigned[d + 1]);
 
 	for (int j = 0 ; j <= b ->second ; j++)
 		q[j] = (a ->first[j] + b ->first[j]) % p;
 
-	for (int j = b ->second + 1 ; j <= a ->second ; j++)
+	for (int j = b ->second + 1 ; j <= d ; j++)
 		q[j] = a ->first[j];
 
 	a = nullptr;
@@ -87,7 +88,9 @@ polynomial& poly_mul(const polynomial& f, const polynomial& g, unsigned p)
 		for (unsigned j = 0 ; j <= g.second ; j++)
 			coeffs[i + j] += (f.first[i] * g.second[j]) % p;
 
-	return make_pair(c_ptr(coeffs), deg);
+	c_ptr		q(coeffs);
+
+	return poly_zp(q.get(), deg);
 }
 
 polynomial& poly_const_mul(int k, const polynomial& f, unsigned p)
@@ -95,13 +98,24 @@ polynomial& poly_const_mul(int k, const polynomial& f, unsigned p)
 	// Force the multiple to be in Z_p.
 	unsigned mult = mod(k, p);
 
-	unsigned* coeffs(new unsigned[f.second]);
+	if (mult == 0)
+	{
+		unsigned	d(0);
+		c_ptr		q(new unsigned);
+		*q = 0;
+		return make_pair(q, d);
+	}
 
-	// Multiply the polynomials
-	for (int j = 0 ; j <= f.second  ; j++)
-		coeffs[j] = (mult * f.first[j]) % p;
+	else
+	{
+		unsigned* coeffs(new unsigned[f.second]);
 
-	return make_pair(c_ptr(coeffs, f.second));
+		// Multiply the polynomials
+		for (int j = 0 ; j <= f.second  ; j++)
+			coeffs[j] = (mult * f.first[j]) % p;
+
+		return make_pair(c_ptr(coeffs), f.second));
+	}
 }
 
 bool is_zero(const polynomial& f)
