@@ -4,7 +4,7 @@
 #define ZP_H
 
 /// Contains finite field operations.
-namespace gpu_finite_field
+namespace finite_field
 {
 
 /// Computes \f$ n \mod{p}\f$.

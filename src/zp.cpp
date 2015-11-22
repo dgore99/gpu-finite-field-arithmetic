@@ -1,6 +1,6 @@
 #include "../include/zp.h"
 
-namespace gpu_finite_field
+namespace finite_field
 {
 
 unsigned mod_exp_helper(unsigned n, unsigned k, unsigned p);

@@ -18,6 +18,7 @@ using namespace std;
 using namespace CppUnit;
 
 CPPUNIT_TEST_SUITE_REGISTRATION( zp_test );
+CPPUNIT_TEST_SUITE_REGISTRATION( polynomial_test );
 
 int main(int argc, char* argv[])
 {

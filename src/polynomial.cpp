@@ -11,14 +11,14 @@ using std::make_pair;
 
 typedef std::unique_ptr<unsigned> c_ptr;
 
-namespace gpu_finite_field
+namespace finite_field
 {
 
-polynomial& poly_zp(const int* coeffs, unsigned degree, unsigned p)
+polynomial& poly_zp(const int* coeffs, unsigned len, unsigned p)
 {
 	unsigned	d;
 
-	for (d = degree ; d >= 0 && coeffs[d] == 0 ; d--);
+	for (d = len - 1 ; d >= 0 && coeffs[d] == 0 ; d--);
 
 	unsigned*	arr(new unsigned[d + 1]);
 

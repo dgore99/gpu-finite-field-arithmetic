@@ -3,7 +3,7 @@
 
 #define mod_poly	modular_polynomial
 
-namespace gpu_finite_field
+namespace finite_field
 {
 
 mod_poly::mod_poly(const polynomial& poly, const polynomial& modulus) :

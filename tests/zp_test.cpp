@@ -12,12 +12,12 @@
 
 #include "../include/zp.h"
 
-using gpu_finite_field::mod;
-using gpu_finite_field::mod_add;
-using gpu_finite_field::mod_sub;
-using gpu_finite_field::mod_mul;
-using gpu_finite_field::mod_exp;
-using gpu_finite_field::mod_inv;
+using finite_field::mod;
+using finite_field::mod_add;
+using finite_field::mod_sub;
+using finite_field::mod_mul;
+using finite_field::mod_exp;
+using finite_field::mod_inv;
 
 class zp_test : public CppUnit::TestFixture
 {

@@ -7,7 +7,7 @@
 #include <utility>
 
 /// Contains finite field operations.
-namespace gpu_finite_field
+namespace finite_field
 {
 
 /// A polynomial is a list of coefficients and a degree.
@@ -15,11 +15,12 @@ typedef std::pair<std::unique_ptr<unsigned>, unsigned> polynomial;
 
 /// Creates a polynomial in \f$Z_p[x]\f$.
 /// @param coeffs The coefficient vector of a monic polynomial ordered
-///			like \f$[a_0,a_1,\ldots,a_n]\f$, where \f$a_i\f$ is the coefficient of \f$x^i\f$.
-/// @param degree The degree of the polynomial.
+///	like \f$[a_0,a_1,\ldots,a_n]\f$,
+/// where \f$a_i\f$ is the coefficient of \f$x^i\f$.
+/// @param len The length of the array.
 /// @param p A prime number (note: we do not check for primality).
 /// @return A coefficient vector along with the polynomial's degree.
-polynomial& poly_zp(const int* coeffs, unsigned degree, unsigned p);
+polynomial& poly_zp(const int* coeffs, unsigned len, unsigned p);
 /// Adds polynomials \f$f\f$ and \f$g\f$ in \f$Z_p[x]\f$.
 /// @param f The first polynomial.
 /// @param g The second polynomial.
@@ -50,10 +51,12 @@ polynomial& poly_const_mul(int k, const polynomial& f, unsigned p);
 /// @return true if zero, false otherwise.
 bool is_zero(const polynomial& f);
 
-/// Prints a polynomial in its canonical form, e.g. \f$a_0+a_1x+\ldots+a_nx^n\f$.
+/// @brief Prints a polynomial in its canonical form,
+/// e.g. \f$a_0+a_1x+\ldots+a_nx^n\f$.
 /// @param f The polynomial.
 void print_poly_form(const polynomial& f);
-/// Prints a vector listing the coefficients of \f$f\f$, e.g. \f$[a_0, a_1,\ldots, a_n]\f$.
+/// @brief Prints a vector listing the coefficients of \f$f\f$,
+/// e.g. \f$[a_0, a_1,\ldots, a_n]\f$.
 /// @param f The polynomial.
 void print_vect_form(const polynomial& f);
 
